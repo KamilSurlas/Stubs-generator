@@ -1,11 +1,19 @@
+#include "CompileCommandsParser.h"
+#include "FilesValidator.h"
 #include <stdio.h>
+#include <iostream>
 
 static const char* usage = "USAGE: StubsGenerator [fileName] [path to compile_commands.json]\n";
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        printf("%s", usage);
+        printf("%s", usage); 
         return 1;
     }
-    return 0;
+    Utilities::FilesValidator filesValidator(argv[1], argv[2]);
+    if (filesValidator.validate())
+    {
+        return 0;
+    }
+    return 1;    
 }
