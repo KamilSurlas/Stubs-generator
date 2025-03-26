@@ -1,22 +1,30 @@
-# Prepare compiler
-CC := g++
-CFLAGS := -Wall -Wextra
-
 # Variables
 BUILD_DIR := build
+TARGET_DIR := ${BUILD_DIR}\bin
 SRCS_DIR := source_files
 SRCS := $(wildcard $(SRCS_DIR)/*.cpp)
 OBJS := $(patsubst $(SRCS_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
-TARGET := $(BUILD_DIR)/StubsGenerator.exe
+TARGET := $(TARGET_DIR)/StubsGenerator.exe
 
-all: ${BUILD_DIR} ${TARGET}
+# Prepare compiler
+CC := g++
+CFLAGS := -Wall -Wextra -Iexternal_libs -Iinclude_files
+
+all: ${BUILD_DIR} ${TARGET_DIR} ${TARGET}
 
 # Create build directory
 ${BUILD_DIR}:
 ifeq ($(OS),Windows_NT)
-	if not exist ${BUILD_DIR} mkdir ${BUILD_DIR}
+	if not exist ${BUILD_DIR} mkdir ${BUILD_DIR} 
 else
 	mkdir -p ${BUILD_DIR}
+endif
+
+${TARGET_DIR}: ${BUILD_DIR}
+ifeq ($(OS),Windows_NT)
+	if not exist ${TARGET_DIR} mkdir ${TARGET_DIR} 
+else
+	mkdir -p ${TARGET_DIR}
 endif
 
 # Linking process 
