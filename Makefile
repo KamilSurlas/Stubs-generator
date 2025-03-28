@@ -36,7 +36,7 @@ else
 	rm $(OBJS)
 endif
 	@echo Build process completed
-	@echo Executable file is build/StubsGenerator.exe
+	@echo Executable file is build/bin/StubsGenerator.exe
 
 # Compilation process
 ${BUILD_DIR}/%.o: $(SRCS_DIR)/%.cpp
