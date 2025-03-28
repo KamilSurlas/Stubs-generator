@@ -6,11 +6,10 @@ using json = nlohmann::json;
 class CompileCommandsParser
 {
 private:
-    std::string m_jsonFile;
-    std::string m_compilationCommand;
-    std::string m_fileToStub;
+    std::string m_fileToTest;
+    std::string m_compileCommandsJsonFile;
 public:
-    CompileCommandsParser(std::string jsonFile, std::string fileToStub);
-    ~CompileCommandsParser();
+    std::string retrieveCompilationCommand();
+    CompileCommandsParser(const std::string& fileToTest, const std::string& compileCommandsJsonFile);
 };
 

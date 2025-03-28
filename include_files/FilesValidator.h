@@ -6,15 +6,17 @@ namespace Utilities {
 class FilesValidator
 {
 private:
-    const char* compile_commands_json = "compile_commands.json";
-    std::string m_fileToStub;
-    std::string m_jsonFile;
+    const char* m_compile_commands_json = "compile_commands.json";
+    std::string m_fileToTest;
+    std::string m_compileCommandsJsonFile;
     std::string concatenate(const std::string& pathToCompileCommandsJson);
-    bool validateFileToStubExtention();
+    bool validateFileToTestExtention();
     bool validateIfJsonFileExist();
-    bool validateFileToStub();
+    bool validateFileToTest();
 public:
     bool validate();
-    FilesValidator(const std::string& fileToStub, const std::string& pathToCompileCommandsJson);
+    std::string getCompileCommandsJsonFile();
+    std::string getFileToTest();
+    FilesValidator(const std::string& fileToTest, const std::string& pathToCompileCommandsJson);
 };
 }

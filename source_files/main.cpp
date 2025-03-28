@@ -13,7 +13,8 @@ int main(int argc, char* argv[]) {
     Utilities::FilesValidator filesValidator(argv[1], argv[2]);
     if (filesValidator.validate())
     {
-        return 0;
+        CompileCommandsParser compileCommandsParser(filesValidator.getFileToTest(), filesValidator.getCompileCommandsJsonFile());
+        std::cout << compileCommandsParser.retrieveCompilationCommand();
     }
-    return 1;    
+    return 0;    
 }
