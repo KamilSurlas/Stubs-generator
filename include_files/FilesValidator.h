@@ -9,14 +9,14 @@ private:
     const char* m_compile_commands_json = "compile_commands.json";
     std::string m_fileToTest;
     std::string m_compileCommandsJsonFile;
-    std::string concatenate(const std::string& pathToCompileCommandsJson);
-    bool validateFileToTestExtention();
-    bool validateIfJsonFileExist();
-    bool validateFileToTest();
+    std::string concatenate(const std::string& pathToCompileCommandsJson) const;
+    bool validateFileToTestExtention() const;
+    bool validateIfJsonFileExist() const;
+    bool validateFileToTest() const;
 public:
-    bool validate();
-    std::string getCompileCommandsJsonFile();
-    std::string getFileToTest();
+    bool validate() const;
+    std::string getCompileCommandsJsonFile() const;
+    std::string getFileToTest() const;
     FilesValidator(const std::string& fileToTest, const std::string& pathToCompileCommandsJson);
 };
 }

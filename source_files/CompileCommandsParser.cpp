@@ -3,7 +3,7 @@
 
 using namespace std;
 
-std::string CompileCommandsParser::retrieveCompilationCommand()
+string CompileCommandsParser::retrieveCompilationCommand() const
 {
     ifstream file(m_compileCommandsJsonFile);
     json data = json::parse(file);
@@ -15,7 +15,7 @@ std::string CompileCommandsParser::retrieveCompilationCommand()
     }
 }
 
-CompileCommandsParser::CompileCommandsParser(const std::string& fileToTest, const std::string& compileCommandsJsonFile)
+CompileCommandsParser::CompileCommandsParser(const string& fileToTest, const string& compileCommandsJsonFile)
     : m_fileToTest(fileToTest), m_compileCommandsJsonFile(compileCommandsJsonFile)
 {
 }

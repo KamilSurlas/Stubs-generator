@@ -9,7 +9,7 @@ private:
     std::string m_fileToTest;
     std::string m_compileCommandsJsonFile;
 public:
-    std::string retrieveCompilationCommand();
+    std::string retrieveCompilationCommand() const;
     CompileCommandsParser(const std::string& fileToTest, const std::string& compileCommandsJsonFile);
 };
 

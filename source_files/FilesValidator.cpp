@@ -8,7 +8,7 @@ using namespace std;
 
 namespace Utilities
 {
-string FilesValidator::concatenate(const string &pathToCompileCommandsJson)
+string FilesValidator::concatenate(const string &pathToCompileCommandsJson) const
 {
     if (pathToCompileCommandsJson.back() != '\\')
     {
@@ -17,17 +17,17 @@ string FilesValidator::concatenate(const string &pathToCompileCommandsJson)
     
     return pathToCompileCommandsJson + m_compile_commands_json;
 }
-bool FilesValidator::validateFileToTestExtention()
+bool FilesValidator::validateFileToTestExtention() const
 {
     regex pattern(R"(.*\.(cpp|c)$)", regex::icase);
     return regex_match(m_fileToTest, pattern);
 }
-bool FilesValidator::validateIfJsonFileExist()
+bool FilesValidator::validateIfJsonFileExist() const
 {
     struct stat buffer;   
     return (stat (m_compileCommandsJsonFile.c_str(), &buffer) == 0); 
 }
-bool FilesValidator::validateFileToTest()
+bool FilesValidator::validateFileToTest() const
 {
     if (!validateIfJsonFileExist())
     {
@@ -44,15 +44,15 @@ bool FilesValidator::validateFileToTest()
     }
     return false;
 }
-bool FilesValidator::validate()
+bool FilesValidator::validate() const
 {
     return validateFileToTestExtention() && validateFileToTest() && validateIfJsonFileExist();
 }
-std::string FilesValidator::getCompileCommandsJsonFile()
+string FilesValidator::getCompileCommandsJsonFile() const
 {
     return m_compileCommandsJsonFile;
 }
-std::string FilesValidator::getFileToTest()
+string FilesValidator::getFileToTest() const
 {
     return m_fileToTest;
 }
