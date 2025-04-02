@@ -1,6 +1,10 @@
 # Variables
 BUILD_DIR := build
-TARGET_DIR := ${BUILD_DIR}\bin
+ifeq ($(OS),Windows_NT)
+	TARGET_DIR := ${BUILD_DIR}\bin
+else
+	TARGET_DIR := ${BUILD_DIR}/bin
+endif
 SRCS_DIR := source_files
 SRCS := $(wildcard $(SRCS_DIR)/*.cpp)
 OBJS := $(patsubst $(SRCS_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
