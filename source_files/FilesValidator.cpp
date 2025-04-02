@@ -10,11 +10,17 @@ namespace Utilities
 {
 string FilesValidator::concatenate(const string &pathToCompileCommandsJson) const
 {
+#ifdef _WIN32
     if (pathToCompileCommandsJson.back() != '\\')
     {
         return pathToCompileCommandsJson + '\\' + m_compile_commands_json;
     }
-    
+#else
+    if (pathToCompileCommandsJson.back() != '/')
+    {
+        return pathToCompileCommandsJson + '/' + m_compile_commands_json;
+    }
+#endif
     return pathToCompileCommandsJson + m_compile_commands_json;
 }
 bool FilesValidator::validateFileToTestExtention() const
