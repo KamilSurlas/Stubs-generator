@@ -8,7 +8,7 @@ TARGET := $(TARGET_DIR)/StubsGenerator.exe
 
 # Prepare compiler
 CC := g++
-CFLAGS := -Wall -Wextra -Iexternal_libs -Iinclude_files
+CFLAGS := -Wall -Wextra -Iinclude_files
 
 all: ${BUILD_DIR} ${TARGET_DIR} ${TARGET}
 

@@ -1,20 +1,49 @@
-#include <sys/stat.h>
 #include <regex>
 #include <string>
 
+#pragma once
+
 namespace Utilities {
+/// @brief Files validator class for validating the file to test and the path to the makefile.
+/// @details This class checks if the file to test has a valid extension, if the files exist, and performs safety checks on the file paths.
 class FilesValidator
 {
 private:
-    const char* compile_commands_json = "compile_commands.json";
-    std::string m_fileToStub;
-    std::string m_jsonFile;
-    std::string concatenate(const std::string& pathToCompileCommandsJson);
-    bool validateFileToStubExtention();
-    bool validateIfJsonFileExist();
-    bool validateFileToStub();
+    /// @brief The file to test.
+    std::string m_fileToTest;
+
+    /// @brief The path to the makefile.
+    std::string m_pathToMakefile;
+
+    /// @brief Concatenated makefile with the path.
+    std::string m_makefileWithPath;
+    
+    /// @brief Concatenates the path to the makefile with the makefile name.
+    /// @details The makefile name is assumed to be "Makefile".
+    /// @return The concatenated makefile path.
+    std::string concatenate() const;
+
+    /// @brief Validates the file to test extension (.c or .cpp).
+    bool validateFileToTestExtention() const;
+
+    /// @brief Validates if the makefile exist and is regular file.
+    bool validateIfmakefileExists() const;
+
+    /// @brief Performs safety checks on the file paths.
+    bool safetyCheck() const;
 public:
-    bool validate();
-    FilesValidator(const std::string& fileToStub, const std::string& pathToCompileCommandsJson);
+    /// @brief Validates the file to test and the path to the makefile.
+    bool validate() const;
+
+    /// @brief Gets the makefile with the path.
+    std::string getPathToMakefile() const;
+
+    /// @brief Gets the file to test.
+    std::string getFileToTest() const;
+
+    /// @brief Constructor for the FilesValidator class.
+    /// @param fileToTest The file to test.
+    /// @param pathToMakefile The path to the makefile.
+    FilesValidator(const std::string& fileToTest, const std::string& pathToMakefile);
 };
 }

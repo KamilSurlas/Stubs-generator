@@ -1,9 +1,9 @@
-#include "CompileCommandsParser.h"
+#include "LinkerCommandParser.h"
 #include "FilesValidator.h"
 #include <stdio.h>
 #include <iostream>
 
-static const char* usage = "USAGE: StubsGenerator [fileName] [path to compile_commands.json]\n";
+static const char* usage = "USAGE: StubsGenerator [fileName] [path to makefile]\n";
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
@@ -13,7 +13,17 @@ int main(int argc, char* argv[]) {
     Utilities::FilesValidator filesValidator(argv[1], argv[2]);
     if (filesValidator.validate())
     {
-        return 0;
+        try
+        {
+            LinkerCommandParser linkerCommandsParser(filesValidator.getFileToTest(), filesValidator.getPathToMakefile());
+            std::cout << linkerCommandsParser.retrieveLinkerCommand();
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
+       
     }
-    return 1;    
+    return 0;    
 }
