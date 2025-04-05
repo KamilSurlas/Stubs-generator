@@ -12,7 +12,7 @@ TARGET := $(TARGET_DIR)/StubsGenerator.exe
 
 # Prepare compiler
 CC := g++
-CFLAGS := -Wall -Wextra -Iexternal_libs -Iinclude_files
+CFLAGS := -Wall -Wextra -Iinclude_files
 
 all: ${BUILD_DIR} ${TARGET_DIR} ${TARGET}
 
@@ -40,7 +40,7 @@ else
 	rm $(OBJS)
 endif
 	@echo Build process completed
-	@echo Executable file is build/StubsGenerator.exe
+	@echo Executable file is build/bin/StubsGenerator.exe
 
 # Compilation process
 ${BUILD_DIR}/%.o: $(SRCS_DIR)/%.cpp
