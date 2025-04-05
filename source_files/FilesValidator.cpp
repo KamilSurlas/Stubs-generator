@@ -7,64 +7,46 @@ using namespace std;
 
 namespace Utilities
 {
-string FilesValidator::concatenate(const string &pathToCompileCommandsJson) const
+string FilesValidator::concatenate() const
 {
+    const char* const makefileName = "Makefile";
 #ifdef _WIN32
-    if (pathToCompileCommandsJson.back() != '\\')
+    if (m_pathToMakefile.back() != '\\')
     {
-        return pathToCompileCommandsJson + '\\' + m_compile_commands_json;
+        return m_pathToMakefile + '\\' + makefileName;
     }
 #else
     if (m_pathToMakefile.back() != '/')
     {
-        return pathToCompileCommandsJson + '/' + m_compile_commands_json;
+        return m_pathToMakefile + '/' + makefileName;
     }
 #endif
-    return pathToCompileCommandsJson + m_compile_commands_json;
+    return m_pathToMakefile + makefileName;
 }
 bool FilesValidator::validateFileToTestExtention() const
 {
-    regex pattern(R"(.*\.(cpp|c)$)", regex::icase);
+    const regex pattern(R"(.*\.(cpp|c)$)", regex::icase);
     return regex_match(m_fileToTest, pattern);
 }
-bool FilesValidator::validateIfJsonFileExist() const
+bool FilesValidator::validateIfmakefileExists() const
 {
-    struct stat buffer;   
-    return (stat (m_compileCommandsJsonFile.c_str(), &buffer) == 0); 
+    return (filesystem::exists(m_makefileWithPath) && filesystem::is_regular_file(m_makefileWithPath));
 }
-bool FilesValidator::validateFileToTest() const
+bool FilesValidator::safetyCheck() const
 {
-    if (!validateIfJsonFileExist())
-    {
-        return false;
-    }
-
-    ifstream file(m_compileCommandsJsonFile);
-    json data = json::parse(file);
-
-    for (const auto& entry : data) {
-        if (entry.contains("file") && entry.at("file").get<string>().find(m_fileToTest) != string::npos) {
-            return true;
-        }
-    }
-    return false;
+    const regex safeRegex(R"(^[a-zA-Z0-9_\-./\\:]+$)");    
+    return regex_match(m_fileToTest, safeRegex) && regex_match(m_makefileWithPath, safeRegex)
+    && (m_container.empty() || regex_match(m_container, safeRegex));
 }
 bool FilesValidator::validate() const
 {
-    return validateFileToTestExtention() && validateFileToTest() && validateIfJsonFileExist();
+    return safetyCheck() && validateFileToTestExtention() && validateIfmakefileExists();
 }
-string FilesValidator::getCompileCommandsJsonFile() const
-{
-    return m_compileCommandsJsonFile;
-}
-string FilesValidator::getFileToTest() const
-{
-    return m_fileToTest;
-}
-FilesValidator::FilesValidator(const string &fileToTest, const string &pathToCompileCommandsJson)
-    : m_fileToTest(fileToTest), m_compileCommandsJsonFile(concatenate(pathToCompileCommandsJson))
+FilesValidator::FilesValidator(const std::string &fileToTest, const std::string &pathToMakefile, const std::string &container)
+    :m_fileToTest(fileToTest), m_pathToMakefile(pathToMakefile), m_makefileWithPath(concatenate()), m_container(container)
 {
 }
 }
+
 
 

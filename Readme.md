@@ -4,7 +4,7 @@
 Target executable file is `StubsGenerator.exe` located in `build/bin` directory <br>
 The build will be created automatically <br>
 ### 1.1. Prerequisites
-- g++ compiler installed on system (Recommended to have MinGW installed).
+- g++ compiler installed on system (Recommended to have MinGW installed on Windows).
 
 ### 1.2. In order to build the program into executable file follow these steps:
 1. Step into StubsGenerator directory (The `Makefile` should be located here).
