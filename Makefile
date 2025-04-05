@@ -1,14 +1,23 @@
 # Variables
+# Build and target directories
 BUILD_DIR := build
 TARGET_DIR := ${BUILD_DIR}\bin
+# Source and include files directories
 SRCS_DIR := source_files
+UTILITIES_DIR := ${SRCS_DIR}/utilities
+INCLUDE_DIR := include_files
+UTILITIES_INCLUDE_DIR := ${INCLUDE_DIR}/utilities
+# Prepare souce and object files
 SRCS := $(wildcard $(SRCS_DIR)/*.cpp)
-OBJS := $(patsubst $(SRCS_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
+UTILITIES_SRCS := $(wildcard $(UTILITIES_DIR)/*.cpp)
+OBJS := $(patsubst $(SRCS_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS)) 
+OBJS += $(patsubst $(UTILITIES_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(UTILITIES_SRCS))
+# Target location
 TARGET := $(TARGET_DIR)/StubsGenerator.exe
 
 # Prepare compiler
 CC := g++
-CFLAGS := -Wall -Wextra -Iinclude_files
+CFLAGS := -Wall -Wextra -I${INCLUDE_DIR} -I${UTILITIES_INCLUDE_DIR}
 
 all: ${BUILD_DIR} ${TARGET_DIR} ${TARGET}
 
@@ -42,6 +51,9 @@ endif
 ${BUILD_DIR}/%.o: $(SRCS_DIR)/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
+${BUILD_DIR}/%.o: $(UTILITIES_DIR)/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+	
 # Clean
 clean:
 ifeq ($(OS),Windows_NT)
