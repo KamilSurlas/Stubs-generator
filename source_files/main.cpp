@@ -1,6 +1,7 @@
 #include "ContainerCompilationExecutor.h"
 #include "CompilationExecutor.h"
 #include "FilesValidator.h"
+#include "CompilationOutputParser.h"
 #include <stdio.h>
 #include <iostream>
 #include <map>
@@ -51,7 +52,6 @@ int main(int argc, char* argv[]) {
         try
         {
             ContainerCompilationExecutor executor(argv[1], argv[2], containerParams.m_containerName, containerParams.m_containerImage);
-            std::cout << executor.compile();
         }
         catch(const std::exception& e)
         {
@@ -65,7 +65,8 @@ int main(int argc, char* argv[]) {
             try
             {
                 CompilationExecutor executor(argv[1], argv[2]);
-                std::cout << executor.compile();
+                CompilationOutputParser parser(executor.compile());
+                parser.parse();
             }
             catch(const std::exception& e)
             {

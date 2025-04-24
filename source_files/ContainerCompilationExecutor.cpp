@@ -6,7 +6,7 @@ using namespace std;
 
 std::string ContainerCompilationExecutor::compile() const
 {
-    string compileCommand = "\"make -C \"" + m_pathToMakefile;
+    string compileCommand = "\"make -C \"" + m_pathToMakefile + " 2>&1";
     return m_containerHandler->executeInsideContainer(compileCommand);
 }
 
