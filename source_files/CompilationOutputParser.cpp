@@ -151,6 +151,7 @@ vector<pair<string, string>> CompilationOutputParser::getCompilationCommands(con
     }
     else {
         // For CMake generation will be from compile_commands.json file.
+        // The function assumes that the compile_commands.json is located in the Makefile directory or one of its subdirectories.
         string compileCommandsPath;
         for (const auto& entry : fs::recursive_directory_iterator(m_pathToMakefile)) {
             if (entry.path().filename() == "compile_commands.json") {
@@ -200,7 +201,7 @@ void CompilationOutputParser::invokePreprocessor(vector<UndefinedReferenceError>
 }
 
 
-string CompilationOutputParser::retrieveFileNameWin(const string &compilationLine) const
+string CompilationOutputParser::retrieveFileName(const string &compilationLine) const
 {
     size_t fileNameEnd = min({compilationLine.find(".cpp"), compilationLine.find(".cc"), 
                                    compilationLine.find(".cxx"), compilationLine.find(".c")});
@@ -241,7 +242,7 @@ vector<UndefinedReferenceError> CompilationOutputParser::parse() const
     {
         if (compilationLine.find(undefinedReferenceTo) != string::npos)
         {
-            string fileUnderCompilationName = retrieveFileNameWin(compilationLine);
+            string fileUnderCompilationName = retrieveFileName(compilationLine);
           
             size_t undefRefErrorStart = compilationLine.find(undefinedReferenceTo) + strlen(undefinedReferenceTo) + 1;
             size_t undefRefErrorEnd = compilationLine.find('\'', undefRefErrorStart);
@@ -268,19 +269,7 @@ vector<UndefinedReferenceError> CompilationOutputParser::parse() const
     removeDuplicates(undefinedReferences);
     prepareSygnatures(undefinedReferences);
     invokePreprocessor(undefinedReferences);
-    for (const auto& error : undefinedReferences) {
-        cout << "File: " << error.m_dependencies.m_fileName << endl;
-        cout << "  Dependencies:" << endl;
-        for (const auto& dependency : error.m_dependencies.m_dependencies) {
-            cout << "    " << dependency << endl;
-        }
-        for (const auto& signatureMap : error.m_functionSygnatures) {
-            cout << "  Namespace/Class: " << signatureMap.m_namespaceOrClassName << endl;
-            for (const auto& signature : signatureMap.m_functionSygnatures) {
-                cout << "    Undefined Reference: " << signature << endl;
-            }
-        }
-    }
+   
     return undefinedReferences;
 }
 

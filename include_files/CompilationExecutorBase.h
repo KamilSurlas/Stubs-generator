@@ -2,13 +2,14 @@
 
 #pragma once
 
+/// @brief Base class for executors.
 class CompilationExecutorBase
 {
 protected:
     /// @brief The path to the Makefile.
     std::string m_pathToMakefile;
 public:
-    /// @brief Reads the compilation output
+    /// @brief Pure virtual function for invoking compilation.
     virtual std::string compile() const = 0;
     /// @brief Constructor for the CompilationExecutorBase class.
     /// @param pathToMakefile The path to the Makefile.

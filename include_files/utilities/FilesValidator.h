@@ -16,9 +16,13 @@ public:
     static std::string concatenate(const std::string& first, const std::string& second);
     
     /// @brief Validates if the given file exist and is regular file.
+    /// @param file file to validate.
+    /// @return boolean value if validation has been successful. 
     static bool validateIfFileExists(const std::string& file);
 
     /// @brief Performs safety checks on the file path.
+    /// @param path path to be check.
+    /// @return boolean value if validation has been successful. 
     static bool safetyCheck(const std::string& path);   
 };
 }

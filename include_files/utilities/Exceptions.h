@@ -5,9 +5,11 @@
 
 namespace Utilities
 {
+    /// @brief Base class for custom exceptions.
     class CustomException : public std::exception
     {
     private:
+        /// @brief exception message.
         std::string m_errorMessage;
 
     public:
@@ -20,12 +22,14 @@ namespace Utilities
         }
     };
 
+    /// @brief custom exception class to represent safety validation exception.
     class safety_validation_exception : public CustomException 
     {
     public:
         safety_validation_exception(const std::string& message) : CustomException(message) {}        
     };
 
+    /// @brief custom exception class to represent unsupported operation exception.
     class operation_not_supported_exception : public CustomException 
     {
     public:
