@@ -1,4 +1,6 @@
 #include "ContainerHandler.h"
+#include "SystemCommandExecutor.h"
+#include "Exceptions.h"
 #include <fstream>
 #include <cstdio>
 #include <array>
@@ -37,28 +39,21 @@ string ContainerHandler::executeInsideContainer(const std::string &command) cons
 string ContainerHandler::executeCommand(const string &command) const
 {
 #ifndef _WIN32
-    array<char, 128> buffer;
-    string result;
-    unique_ptr<FILE, int (*)(FILE*)> pipe(popen(command.c_str(), "r"), pclose);
-    if (!pipe) {
-        throw std::runtime_error("popen() failed!");
-    }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
-    return result;
+    return SystemCommandExecutor::execute(command);
+#else
+    throw Utilities::operation_not_supported_exception("This function is not supported on Windows.");
 #endif
 }
 
 void ContainerHandler::dockerRun() const
 {
-    string fullCommand = "docker run -it --name " + m_containerName;
+    string fullCommand = "docker run -d --name " + m_containerName + " " + m_imageName + " > 2>&1";
     system(fullCommand.c_str());
 }
 
 void ContainerHandler::dockerStart() const
 {
-    string startCommand = "docker start -ai " + m_containerName;
+    string startCommand = "docker start " + m_containerName + " > 2>&1";
     system(startCommand.c_str());
 }
 
