@@ -22,5 +22,5 @@ std::string CompilationExecutor::compile() const
 #else
     const string command = "make -C " + m_pathToMakefile + " 2>&1";
 #endif
-    return SystemCommandExecutor::execute(command);
+    return Utilities::SystemCommandExecutor::execute(command);
 }
