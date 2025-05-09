@@ -10,12 +10,14 @@ private:
     /// @brief Handler for the container
     std::unique_ptr<ContainerHandler> m_containerHandler;
 public:
+    /// @brief Function responsible for invoking compilation inside container.
+    /// @return The compilation output.
     std::string compile() const override;
     /// @brief Constructor for the ContainerCompilationExecutor class.
-    /// @param fileToTest The file to test.
     /// @param pathToMakefile The path to the Makefile.
     /// @param container The name of the container.
     /// @param image The name of the container image.
-    ContainerCompilationExecutor(const std::string& fileToTest, const std::string& pathToMakefile, const std::string& container, const std::string& image);
+    ContainerCompilationExecutor(const std::string& pathToMakefile, const std::string& container, const std::string& image);
 };
+
 

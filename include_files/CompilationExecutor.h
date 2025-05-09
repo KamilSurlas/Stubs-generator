@@ -7,11 +7,11 @@
 class CompilationExecutor : public CompilationExecutorBase
 {
 public:
-    /// @brief Reads the compilation output
+    /// @brief Reads the compilation output without container.
+    /// @return the compilation output
     std::string compile() const override;
     /// @brief Constructor for the CompilationExecutor class.
-    /// @param fileToTest The file to test.
     /// @param pathToMakefile path to Makefile.
-    CompilationExecutor(const std::string& fileToTest, const std::string& pathToMakefile);
+    CompilationExecutor(const std::string& pathToMakefile);
 };
 

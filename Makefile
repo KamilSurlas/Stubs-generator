@@ -6,13 +6,16 @@ else
 	TARGET_DIR := ${BUILD_DIR}/bin
 endif
 SRCS_DIR := source_files
+UTILITIES_DIR := ${SRCS_DIR}/utilities
 SRCS := $(wildcard $(SRCS_DIR)/*.cpp)
+UTILITIES_SRCS := $(wildcard $(UTILITIES_DIR)/*.cpp)
 OBJS := $(patsubst $(SRCS_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
+OBJS += $(patsubst $(UTILITIES_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(UTILITIES_SRCS))
 TARGET := $(TARGET_DIR)/StubsGenerator.exe
 
 # Prepare compiler
 CC := g++
-CFLAGS := -Wall -Wextra -Iinclude_files
+CFLAGS := -Wall -Wextra -Iinclude_files -Iinclude_files/utilities -Iexternal_libs
 
 all: ${BUILD_DIR} ${TARGET_DIR} ${TARGET}
 
@@ -44,6 +47,9 @@ endif
 
 # Compilation process
 ${BUILD_DIR}/%.o: $(SRCS_DIR)/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+${BUILD_DIR}/%.o: $(UTILITIES_DIR)/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean
