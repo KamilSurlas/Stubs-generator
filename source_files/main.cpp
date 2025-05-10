@@ -2,6 +2,7 @@
 #include "CompilationExecutor.h"
 #include "FilesValidator.h"
 #include "CompilationOutputParser.h"
+#include "StubGenerator.h"
 #include <stdio.h>
 #include <iostream>
 #include <map>
@@ -64,16 +65,22 @@ int main(int argc, char* argv[]) {
         ContainerParams containerParams = configContainerParams();
         try {
             ContainerCompilationExecutor executor(argv[1], containerParams.m_containerName, containerParams.m_containerImage);
-            CompilationOutputParser parser(executor.compile(), argv[1], configMap[Configuration::FROM_CMAKE] == true ? true : false);
-            parser.parse();
+            bool isFromCmake = configMap[Configuration::FROM_CMAKE] == true ? true : false;
+            CompilationOutputParser parser(executor.compile(), argv[1], isFromCmake);
+            const std::vector<UndefinedReferenceError> errors = parser.parse();
+            StubGenerator stubGenerator(errors);
+            stubGenerator.generateStubs();
         } catch (const std::exception& e) {
             std::cerr << e.what() << '\n';
         }
     } else {
         try {
             CompilationExecutor executor(argv[1]);
-            CompilationOutputParser parser(executor.compile(), argv[1], configMap[Configuration::FROM_CMAKE] == true ? true : false);
-            parser.parse();
+            bool isFromCmake = configMap[Configuration::FROM_CMAKE] == true ? true : false;
+            CompilationOutputParser parser(executor.compile(), argv[1], isFromCmake);
+            const std::vector<UndefinedReferenceError> errors = parser.parse();
+            StubGenerator stubGenerator(errors);
+            stubGenerator.generateStubs();
         } catch (const std::exception& e) {
             std::cerr << e.what() << '\n';
         }
