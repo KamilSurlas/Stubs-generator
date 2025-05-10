@@ -191,10 +191,35 @@ void CompilationOutputParser::invokePreprocessor(vector<UndefinedReferenceError>
         string preprocessorOutput = SystemCommandExecutor::execute(compilationCommands.at(i).second);
         istringstream preprocessorOutputStream(preprocessorOutput);
         string dependencyLine;
+        string combinedLine;
         while (getline(preprocessorOutputStream, dependencyLine)) {
-            dependencies.push_back(dependencyLine);
+            // Check if preprocessor returned the output on multiple lines
+            if (!dependencyLine.empty() && dependencyLine.back() == '\\') {
+            dependencyLine.pop_back(); // Remove the trailing backslash
+            combinedLine += dependencyLine;
+            } else {
+            combinedLine += dependencyLine;
+            dependencies.push_back(combinedLine);
+            combinedLine.clear();
+            }
         }
-        errors.at(i).m_dependencies.m_dependencies = dependencies;
+        // If Makefile is not generated from Cmake add path to dependencies
+        errors.at(i).m_dependencies.m_dependencies = m_isFromCmake ? dependencies : parseFileDependencies(dependencies);
+         // Remove source file's header from it is dependencies
+        for (const auto& dep : errors.at(i).m_dependencies.m_dependencies){
+            fs::path depPath(dep);
+            fs::path srcPath(errors.at(i).m_dependencies.m_fileName);
+            if(!depPath.stem().string().empty() && depPath.stem().string() == srcPath.stem().string()){
+                errors.at(i).m_dependencies.m_dependencies.erase(
+                    std::remove(errors.at(i).m_dependencies.m_dependencies.begin(),
+                                errors.at(i).m_dependencies.m_dependencies.end(), dep),
+                    errors.at(i).m_dependencies.m_dependencies.end());
+            }
+        }
+        // At the end of process concatenate file name (it can not be done earlier due to preproccessor operations)
+        if(!m_isFromCmake){
+            errors.at(i).m_dependencies.m_fileName = FilesValidator::concatenate(m_pathToMakefile, errors.at(i).m_dependencies.m_fileName);
+        }
     }
 
     fs::current_path(currentDirectory);
@@ -225,10 +250,37 @@ string CompilationOutputParser::retrieveFileName(const string &compilationLine) 
     return compilationLine.substr(fileNameStart, fileNameEnd - fileNameStart);
 }
 
-bool CompilationOutputParser::stringEndsWith(const string &str, const string &suffix) const
+vector<string> CompilationOutputParser::parseFileDependencies(vector<string> &dependencies) const
 {
-    if (suffix.size() > str.size()) return false;
-    return equal(suffix.rbegin(), suffix.rend(), str.rbegin());
+    vector<string> parsed;
+
+    for (const auto& dependencyLine : dependencies) {
+        size_t colonPos = dependencyLine.find(':');
+        if (colonPos != string::npos) {
+            string objectPart = dependencyLine.substr(0, colonPos + 1);
+            string dependenciesPart = dependencyLine.substr(colonPos + 1);
+
+            istringstream iss(dependenciesPart);
+            string parsedDependency;
+
+            while (iss >> parsedDependency) {
+                if (!parsedDependency.empty()) {
+                    // Skip CPP file
+                    if (parsedDependency.length() >= 4 && 
+                        parsedDependency.rfind(".cpp") == parsedDependency.length() - 4) {
+                        continue;
+                    }
+                    // skip C file
+                    if (parsedDependency.length() >= 2 && 
+                        parsedDependency.rfind(".c") == parsedDependency.length() - 2) {
+                        continue;
+                    }
+                    parsed.push_back(Utilities::FilesValidator::concatenate(m_pathToMakefile, parsedDependency));
+                }
+            }
+        }
+    }
+    return parsed;
 }
 
 vector<UndefinedReferenceError> CompilationOutputParser::parse() const
@@ -269,7 +321,18 @@ vector<UndefinedReferenceError> CompilationOutputParser::parse() const
     removeDuplicates(undefinedReferences);
     prepareSygnatures(undefinedReferences);
     invokePreprocessor(undefinedReferences);
-   
+    for (const auto& error : undefinedReferences) {
+        cout << "File: " << error.m_dependencies.m_fileName << endl;
+        for (const auto& dp : error.m_dependencies.m_dependencies){
+            cout << "dependency: " << dp << endl;
+        }
+        for (const auto& signatureMap : error.m_functionSygnatures) {
+            cout << "  Namespace/Class: " << signatureMap.m_namespaceOrClassName << endl;
+            for (const auto& functionSignature : signatureMap.m_functionSygnatures) {
+                cout << "    Function Signature: " << functionSignature << endl;
+            }
+        }
+    }
     return undefinedReferences;
 }
 
