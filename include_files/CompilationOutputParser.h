@@ -69,12 +69,10 @@ private:
     /// @return The extracted file name.
     std::string retrieveFileName(const std::string& compilationLine) const;
 
-    /// @brief Checks if a string ends with a specified suffix.
-    /// @details This funcion is implemented in C++20 onwards in string class.
-    /// @param str The string to check.
-    /// @param suffix The suffix to look for.
-    /// @return True if the string ends with the specified suffix, false otherwise.
-    bool stringEndsWith(const std::string& str, const std::string& suffix) const;
+    /// @brief Parses dependencies from preprocessor output to form accesiable for StubGenerator.
+    /// @param dependencies dependecies for file.
+    /// @return vector of parsed dependencies.
+    std::vector<std::string> parseFileDependencies(std::vector<std::string>& dependencies) const; 
 
     /// @brief The output of the compilation process.
     std::string m_compilationOutput;

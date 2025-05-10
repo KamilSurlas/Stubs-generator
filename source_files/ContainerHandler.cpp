@@ -39,7 +39,7 @@ string ContainerHandler::executeInsideContainer(const std::string &command) cons
 string ContainerHandler::executeCommand(const string &command) const
 {
 #ifndef _WIN32
-    return SystemCommandExecutor::execute(command);
+    return Utilities::SystemCommandExecutor::execute(command);
 #else
     throw Utilities::operation_not_supported_exception("This function is not supported on Windows.");
 #endif
@@ -47,13 +47,13 @@ string ContainerHandler::executeCommand(const string &command) const
 
 void ContainerHandler::dockerRun() const
 {
-    string fullCommand = "docker run -d --name " + m_containerName + " " + m_imageName + " > 2>&1";
+    string fullCommand = "docker run -d --name " + m_containerName + " " + m_imageName + " > /dev/null 2>&1";
     system(fullCommand.c_str());
 }
 
 void ContainerHandler::dockerStart() const
 {
-    string startCommand = "docker start " + m_containerName + " > 2>&1";
+    string startCommand = "docker start " + m_containerName + " > /dev/null 2>&1";
     system(startCommand.c_str());
 }
 
