@@ -8,6 +8,8 @@
 #include <iostream>
 #include <memory>
 
+#define UNUSED(x) (void)(x)
+
 using namespace std;
 
 void ContainerHandler::initializeContainer() const
@@ -41,6 +43,7 @@ string ContainerHandler::executeCommand(const string &command) const
 #ifndef _WIN32
     return Utilities::SystemCommandExecutor::execute(command);
 #else
+    UNUSED(command);
     throw Utilities::operation_not_supported_exception("This function is not supported on Windows.");
 #endif
 }
