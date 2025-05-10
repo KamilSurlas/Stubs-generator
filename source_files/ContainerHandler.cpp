@@ -39,7 +39,7 @@ string ContainerHandler::executeInsideContainer(const std::string &command) cons
 string ContainerHandler::executeCommand(const string &command) const
 {
 #ifndef _WIN32
-    return SystemCommandExecutor::execute(command);
+    return Utilities::SystemCommandExecutor::execute(command);
 #else
     throw Utilities::operation_not_supported_exception("This function is not supported on Windows.");
 #endif
