@@ -1,6 +1,7 @@
 #include "StubGenerator.h"
 #include "FilesValidator.h"
 #include "TypeTraits.h"
+#include "HeaderFileAnalyzer.h"
 #include <filesystem>
 #include <set>
 #include <unordered_set>
@@ -50,7 +51,7 @@ string StubGenerator::prepareDirectories() const
     return directoryName;
 }
 
-bool StubGenerator::prepareStubFileContent(ostringstream& stubbedStream, const vector<UndefinedReferenceErrorMap>& sygnatures, const string& headerFile) const
+bool StubGenerator::prepareStubFileContent(ostringstream& stubbedStream, const UndefinedReferenceError& errorData, const string& headerFile) const
 {
     string headerFileName;
     size_t lastSlashPos = headerFile.find_last_of("/\\");
@@ -65,14 +66,12 @@ bool StubGenerator::prepareStubFileContent(ostringstream& stubbedStream, const v
         return false;
     }
 
-    vector<FunctionInfo> functions = retrieveFunctionsInfo(sygnatures);
-
     headerFileStream.clear();
     headerFileStream.seekg(0, ios::beg);
 
-    string line;
+    vector<FunctionInfo> functions = retrieveFunctionsInfo(errorData.m_functionSygnatures);
 
-    cout << "header file " << headerFile << endl;
+    string line;
 
     while (getline(headerFileStream, line)) {
         // Skip pragma once or include guards
@@ -134,7 +133,11 @@ bool StubGenerator::prepareStubFileContent(ostringstream& stubbedStream, const v
                         }
                         case TypeTraits::Type::COMPOUND: {
                             string actualType = TypeTraits::getCompundTypeName(returnType);
-                            returnFromStub = "return " + actualType + "();";
+                            if (HeaderFileAnalyzer::defaultCtorExists(errorData.m_dependencies.m_dependencies, actualType)){
+                                returnFromStub = "return " + actualType + "();";
+                            } else {
+                                returnFromStub = "\nreturn " + actualType + "();\n // Default constructor is not accessible, stub may not work correctly\n";
+                            }
                             break;
                         }
                         case TypeTraits::Type::VOID: {
@@ -184,7 +187,7 @@ vector<FunctionInfo> StubGenerator::retrieveFunctionsInfo(const vector<Undefined
                 info.m_namespaces = functionName.substr(0, namespacesEnd);
                 info.m_functionName = functionName.substr(namespacesEnd + 2);
             } else {
-                info.m_functionName = functionName;
+                info.m_functionName = functionName;  
                 info.m_namespaces = sygnature.m_namespaceOrClassName;
             }
             if (!sygnature.m_namespaceOrClassName.empty() && !info.m_namespaces.empty() && info.m_namespaces != sygnature.m_namespaceOrClassName) {
@@ -196,6 +199,34 @@ vector<FunctionInfo> StubGenerator::retrieveFunctionsInfo(const vector<Undefined
     }
 
     return functions;
+}
+
+FunctionInfo StubGenerator::retrieveFunctionInfo(const string &sygnature, const string &ns) const
+{
+    FunctionInfo info;
+
+    size_t argumentListStart = sygnature.find('(');
+    size_t argumentListEnd = sygnature.rfind(')');
+    info.m_argumentsList = sygnature.substr(argumentListStart + 1, argumentListEnd - argumentListStart - 1);
+
+    string functionName = sygnature.substr(0, argumentListStart);
+    size_t namespacesEnd = functionName.rfind("::");
+    if (namespacesEnd != string::npos) {
+        info.m_namespaces = functionName.substr(0, namespacesEnd);
+        info.m_functionName = functionName.substr(namespacesEnd + 2);
+    } else {
+        info.m_functionName = functionName;
+        if (ns.empty()) {
+            info.m_namespaces = "";
+        } else {
+            cout << "Namespace or class name: " << ns << endl;
+            info.m_namespaces = ns;
+        }
+    }
+    if (!ns.empty() && !info.m_namespaces.empty() && info.m_namespaces != ns) {
+        info.m_namespaces = ns + "::" + info.m_namespaces;
+    }
+    return info;
 }
 
 void StubGenerator::writeStubFile(ostringstream &stubbedStream, const string &stubFilePath) const
@@ -261,7 +292,9 @@ void StubGenerator::generateStubs() const
             string stubFile = stemedFile + "Stub.cpp";
 
             vector<UndefinedReferenceErrorMap> relevantSygnatures;
+            
             for (const auto& sygnature : error.m_functionSygnatures) {
+                
                 if (sygnature.m_namespaceOrClassName == stemedFile) {
                     relevantSygnatures.push_back(sygnature);
                 } else {
@@ -269,11 +302,17 @@ void StubGenerator::generateStubs() const
                         if (functionSygnature.find(stemedFile) != string::npos) {
                             relevantSygnatures.push_back(sygnature);
                             break;
+                        } else {
+                            FunctionInfo funcInfo = retrieveFunctionInfo(functionSygnature, sygnature.m_namespaceOrClassName);
+                            if (HeaderFileAnalyzer::foundFunctionDeclaration(dependency, funcInfo)) {
+                                relevantSygnatures.push_back(sygnature);
+                                break;
+                            }
                         }
                     }
-                }
+                } 
             }
-
+            
             if (relevantSygnatures.empty()) {
                 continue;
             }
@@ -287,7 +326,8 @@ void StubGenerator::generateStubs() const
             }
            
             ostringstream stubbedStream;
-            if (!prepareStubFileContent(stubbedStream, relevantSygnatures, dependency)) {
+            UndefinedReferenceError errorData(error.m_dependencies, relevantSygnatures);
+            if (!prepareStubFileContent(stubbedStream, errorData, dependency)) {
                 throw runtime_error("Error during generation");
             }
             writeStubFile(stubbedStream, filePath.string());

@@ -28,6 +28,7 @@ struct UndefinedReferenceError {
     std::vector<UndefinedReferenceErrorMap> m_functionSygnatures;
     UndefinedReferenceError(const std::string& fileName)
         : m_dependencies({Dependencies{fileName, {}}}) {}
+    UndefinedReferenceError(const Dependencies& dep, const std::vector<UndefinedReferenceErrorMap>& functionSygnatures);
 };
 
 /// @brief Class resposnible for parsing the compilation output into UndefinedReferenceError vector.
