@@ -3,6 +3,7 @@
 #include "FilesValidator.h"
 #include "CompilationOutputParser.h"
 #include "StubGenerator.h"
+#include "Logger.h"
 #include <stdio.h>
 #include <iostream>
 #include <map>
@@ -21,7 +22,7 @@ enum class Configuration
 
 std::map<Configuration, bool> configMap = {
     {Configuration::USE_CONTAINER, false},
-    {Configuration::FROM_CMAKE, false}
+    {Configuration::FROM_CMAKE, false},
 };
 
 struct ContainerParams
@@ -43,7 +44,8 @@ static const char* const usage = "USAGE: StubsGenerator [path to makefile] [path
                            "path to makefile: The path to the makefile.\n"
                            "path to project directory: The path to the project (needed for searching includes).\n"
                            "--use_container: Add this flag if container should be used.\n"
-                           "--from_cmake: Use this flag if the Makefile have been generated from CMakeLists.txt\n";
+                           "--from_cmake: Use this flag if the Makefile have been generated from CMakeLists.txt\n"
+                           "--logs={CONSOLE, FILE, BOTH (default)}]";
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -58,6 +60,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    bool logSettingProvided = false;
     for (int i = 1; i < argc; i++) {
         if (std::string(argv[i]) == "--use_container") {
             configMap[Configuration::USE_CONTAINER] = true;
@@ -65,6 +68,15 @@ int main(int argc, char* argv[]) {
         if (std::string(argv[i]) == "--from_cmake"){
             configMap[Configuration::FROM_CMAKE] = true;
         }
+        if (std::string(argv[i]).find("--logs=") != std::string::npos) {
+            logSettingProvided = true;
+            Utilities::Logger* const logger = Utilities::Logger::getInstance();
+            logger->configure(logger->charArrToLogOutput(argv[i]));
+        }
+    }
+    if (!logSettingProvided) {
+        Utilities::Logger* const logger = Utilities::Logger::getInstance();
+        logger->configure(Utilities::LogOutput::BOTH);
     }
 
     if (configMap[Configuration::USE_CONTAINER]) {
@@ -72,6 +84,9 @@ int main(int argc, char* argv[]) {
         try {
             ContainerCompilationExecutor executor(argv[1], containerParams.m_containerName, containerParams.m_containerImage);
             bool isFromCmake = configMap[Configuration::FROM_CMAKE] == true ? true : false;
+
+            std::cout << "Please wait, the stub generation is in progress..." << std::endl;
+
             CompilationOutputParser parser(executor.compile(), argv[1], isFromCmake);
             const std::vector<UndefinedReferenceError> errors = parser.parse();
             StubGenerator stubGenerator(errors);
@@ -83,6 +98,9 @@ int main(int argc, char* argv[]) {
         try {
             CompilationExecutor executor(argv[1]);
             bool isFromCmake = configMap[Configuration::FROM_CMAKE] == true ? true : false;
+
+            std::cout << "Please wait, the stub generation is in progress..." << std::endl;
+
             CompilationOutputParser parser(executor.compile(), argv[1], isFromCmake);
             const std::vector<UndefinedReferenceError> errors = parser.parse();
             StubGenerator stubGenerator(errors);
