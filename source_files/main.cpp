@@ -7,6 +7,12 @@
 #include <iostream>
 #include <map>
 
+/* 
+    Uncomment the line below to enable debug mode. 
+    It will print additional information during execution. 
+*/
+// #define DEBUG
+
 enum class Configuration
 {
     USE_CONTAINER,

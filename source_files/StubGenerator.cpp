@@ -96,9 +96,11 @@ bool StubGenerator::prepareStubFileContent(ostringstream& stubbedStream, const U
                 string extractedFunctionName = line.substr(end + 1, start - end - 1);
 
                 if (extractedFunctionName == function.m_functionName) {
+#ifdef DEBUG
                     cout << "Function found: " << function.m_functionName << endl;
                     cout << "Function namespaces: " << function.m_namespaces << endl;
                     cout << "Function arguments: " << function.m_argumentsList << endl;
+#endif
                     size_t returnTypeStartPos = line.find_first_not_of(' ');
                     if (returnTypeStartPos == string::npos) returnTypeStartPos = 0;
                     size_t funcPos = line.find(function.m_functionName, returnTypeStartPos);
@@ -219,7 +221,6 @@ FunctionInfo StubGenerator::retrieveFunctionInfo(const string &sygnature, const 
         if (ns.empty()) {
             info.m_namespaces = "";
         } else {
-            cout << "Namespace or class name: " << ns << endl;
             info.m_namespaces = ns;
         }
     }
