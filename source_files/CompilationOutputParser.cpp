@@ -296,7 +296,12 @@ vector<UndefinedReferenceError> CompilationOutputParser::parse() const
             string fullSignature = compilationLine.substr(undefRefErrorStart, undefRefErrorEnd - undefRefErrorStart);
 
             size_t namespaceStart = fullSignature.find("::");
-            string namespaceName = fullSignature.substr(1, namespaceStart - 1);
+            string namespaceName;
+            if (namespaceStart != string::npos) {
+                namespaceName = fullSignature.substr(1, namespaceStart - 1);
+            } else {
+                namespaceName = ""; // No namespace/class for free function
+            }
 
             if (fileUnderCompilationName != currentFileName && !fileUnderCompilationName.empty())
             {
@@ -333,5 +338,10 @@ vector<UndefinedReferenceError> CompilationOutputParser::parse() const
 
 CompilationOutputParser::CompilationOutputParser(const string &compilationOutput, const string &pathToMakefile, bool isFromCmake)
     : m_compilationOutput(compilationOutput), m_pathToMakefile(pathToMakefile), m_isFromCmake(isFromCmake)
+{
+}
+
+UndefinedReferenceError::UndefinedReferenceError(const Dependencies &dep, const vector<UndefinedReferenceErrorMap> &functionSygnatures)
+    : m_dependencies(dep), m_functionSygnatures(functionSygnatures)
 {
 }
