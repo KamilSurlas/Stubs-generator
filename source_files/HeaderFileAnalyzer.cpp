@@ -74,17 +74,23 @@ bool HeaderFileAnalyzer::foundFunctionDeclaration(const string &headerFile, Func
     if (file.is_open()) {
         vector<string> ns = split(function.m_namespaces, "::");
         vector<string> positions;
+#ifdef DEBUG
         cout << "Size of namespaces: " << ns.size() << endl;
         cout << "Size of positions: " << positions.size() << endl;
         cout << "Header file: " << headerFile << endl;
         cout << "Function: " << function.m_functionName << endl;
         cout << "Namespaces: ";
-        for (const auto &n : ns) cout << n << " ";
+        for (const auto &n : ns) {
+            cout << n << " ";
+        }
         cout << endl;
+#endif
         string line;
         while(getline(file, line)){
             if (line.find(function.m_functionName) != string::npos && positions == ns) {
+#ifdef DEBUG
                 cout << "Found function declaration: " << line << endl;
+#endif
                 return true;
             }
             string stemedFile = filesystem::path(headerFile).stem().string();
@@ -115,12 +121,6 @@ bool HeaderFileAnalyzer::foundFunctionDeclaration(const string &headerFile, Func
 
 bool HeaderFileAnalyzer::defaultCtorExists(const vector<string> &headerFiles, const string &type)
 {
-    cout << "Checking for default constructor in type: " << type << endl;
-    cout << "Header files: " << endl;
-    for (const auto &headerFile : headerFiles) {
-        cout << " - " << headerFile << endl;
-    }
-    
     for (const auto &headerFile : headerFiles) {
         bool inClass = false;
         bool inPrivateSection = false;
@@ -139,7 +139,6 @@ bool HeaderFileAnalyzer::defaultCtorExists(const vector<string> &headerFiles, co
                 iss >> keyword >> name >> brace;
                 if ((keyword == "class" || keyword == "struct") && name == type) {
                     if (brace.empty() || brace == "{") {
-                        cout << "Class or struct found: " << type << " in " << headerFile << endl;
                         inClass = true;
                     }
                 }
@@ -149,7 +148,6 @@ bool HeaderFileAnalyzer::defaultCtorExists(const vector<string> &headerFiles, co
                     inPrivateSection = false;
                 }
                 if (inClass && !inPrivateSection && ctorFound(line, type) && line.find("= delete") == string::npos) {
-                    cout << "Default constructor found in " << headerFile << ": " << line << endl;
                     file.close();
                     return true;
                 } 

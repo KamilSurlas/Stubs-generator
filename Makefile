@@ -17,7 +17,19 @@ TARGET := $(TARGET_DIR)/StubsGenerator.exe
 CC := g++
 CFLAGS := -Wall -Wextra -Iinclude_files -Iinclude_files/utilities -Iexternal_libs
 
-all: ${BUILD_DIR} ${TARGET_DIR} ${TARGET}
+# Debug and Release flags
+DEBUG_FLAGS := -DDEBUG -g
+RELEASE_FLAGS := -O2
+
+.PHONY: all debug release clean
+
+all: release
+
+debug: CFLAGS += $(DEBUG_FLAGS)
+debug: ${BUILD_DIR} ${TARGET_DIR} ${TARGET}
+
+release: CFLAGS += $(RELEASE_FLAGS)
+release: ${BUILD_DIR} ${TARGET_DIR} ${TARGET}
 
 # Create build directory
 ${BUILD_DIR}:

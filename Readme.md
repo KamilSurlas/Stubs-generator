@@ -8,7 +8,7 @@ The build will be created automatically <br>
 
 ### 1.2. In order to build the program into executable file follow these steps:
 1. Step into StubsGenerator directory (The `Makefile` should be located here).
-2. Invoke `make` or `MinGW32-make` for `Windows`.
+2. Invoke `make [release \ debug]` or `MinGW32-make [release \ debug]` for `Windows`. 
 The executable file `StubsGenerator.exe` should be generated in `build/bin` directory.
 
 ### 1.3. Cleaning the output files:

@@ -2,6 +2,7 @@
 #include "FilesValidator.h"
 #include "TypeTraits.h"
 #include "HeaderFileAnalyzer.h"
+#include "Logger.h"
 #include <filesystem>
 #include <set>
 #include <unordered_set>
@@ -10,6 +11,7 @@
 #include <sstream>
 
 using namespace std;
+
 namespace fs = filesystem;
 using namespace Utilities;
 
@@ -18,7 +20,7 @@ StubGenerator::StubGenerator(const vector<UndefinedReferenceError>& errors)
 {
 }
 
-std::string &StubGenerator::trim(std::string &str) const
+string &StubGenerator::trim(string &str) const
 {
     str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](unsigned char c) {
         return !std::isspace(c);
@@ -96,9 +98,11 @@ bool StubGenerator::prepareStubFileContent(ostringstream& stubbedStream, const U
                 string extractedFunctionName = line.substr(end + 1, start - end - 1);
 
                 if (extractedFunctionName == function.m_functionName) {
+#ifdef DEBUG
                     cout << "Function found: " << function.m_functionName << endl;
                     cout << "Function namespaces: " << function.m_namespaces << endl;
                     cout << "Function arguments: " << function.m_argumentsList << endl;
+#endif
                     size_t returnTypeStartPos = line.find_first_not_of(' ');
                     if (returnTypeStartPos == string::npos) returnTypeStartPos = 0;
                     size_t funcPos = line.find(function.m_functionName, returnTypeStartPos);
@@ -136,6 +140,7 @@ bool StubGenerator::prepareStubFileContent(ostringstream& stubbedStream, const U
                             if (HeaderFileAnalyzer::defaultCtorExists(errorData.m_dependencies.m_dependencies, actualType)){
                                 returnFromStub = "return " + actualType + "();";
                             } else {
+                                Utilities::Logger::getInstance()->log(__FILE__, __LINE__, "Default constructor for type '" + actualType + "' is not accessible. Stub may not work correctly.", LogSeverity::WARNING);
                                 returnFromStub = "\nreturn " + actualType + "();\n // Default constructor is not accessible, stub may not work correctly\n";
                             }
                             break;
@@ -194,7 +199,9 @@ vector<FunctionInfo> StubGenerator::retrieveFunctionsInfo(const vector<Undefined
                 info.m_namespaces = sygnature.m_namespaceOrClassName + "::" + info.m_namespaces;
             } 
             functions.push_back(info);
+#ifdef DEBUG
             cout << "Added FunctionInfo: " << info.m_functionName << ", Namespaces: " << info.m_namespaces << ", Arguments: " << info.m_argumentsList << endl;
+#endif
         }
     }
 
@@ -219,7 +226,6 @@ FunctionInfo StubGenerator::retrieveFunctionInfo(const string &sygnature, const 
         if (ns.empty()) {
             info.m_namespaces = "";
         } else {
-            cout << "Namespace or class name: " << ns << endl;
             info.m_namespaces = ns;
         }
     }
@@ -333,7 +339,8 @@ void StubGenerator::generateStubs() const
             writeStubFile(stubbedStream, filePath.string());
 
             file.close();
-            cout << "Stub file has been created: " << filePath.string() << endl;
+
+            Logger::getInstance()->log(__FILE__, __LINE__, "Stub file created: " + filePath.string(), LogSeverity::INFO);
         }
     }
 }

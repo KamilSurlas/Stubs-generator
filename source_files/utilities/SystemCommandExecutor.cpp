@@ -9,7 +9,7 @@ namespace Utilities {
     namespace SystemCommandExecutor {
         string execute(const string &command)
         {
-            array<char, 128> buffer;
+            array<char, 1024> buffer;
             string output;
 #ifdef _WIN32
             unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command.c_str(), "r"), _pclose);

@@ -321,6 +321,7 @@ vector<UndefinedReferenceError> CompilationOutputParser::parse() const
     removeDuplicates(undefinedReferences);
     prepareSygnatures(undefinedReferences);
     invokePreprocessor(undefinedReferences);
+#ifdef DEBUG
     for (const auto& error : undefinedReferences) {
         cout << "File: " << error.m_dependencies.m_fileName << endl;
         for (const auto& dp : error.m_dependencies.m_dependencies){
@@ -333,6 +334,7 @@ vector<UndefinedReferenceError> CompilationOutputParser::parse() const
             }
         }
     }
+#endif
     return undefinedReferences;
 }
 
