@@ -80,7 +80,9 @@ bool HeaderFileAnalyzer::foundFunctionDeclaration(const string &headerFile, Func
         cout << "Header file: " << headerFile << endl;
         cout << "Function: " << function.m_functionName << endl;
         cout << "Namespaces: ";
-        for (const auto &n : ns) cout << n << " ";
+        for (const auto &n : ns) {
+            cout << n << " ";
+        }
         cout << endl;
 #endif
         string line;

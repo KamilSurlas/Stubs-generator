@@ -8,12 +8,6 @@
 #include <iostream>
 #include <map>
 
-/* 
-    Uncomment the line below to enable debug mode. 
-    It will print additional information during execution. 
-*/
-// #define DEBUG
-
 enum class Configuration
 {
     USE_CONTAINER,
@@ -40,12 +34,12 @@ ContainerParams configContainerParams(){
     return containerParams;
 }
 static const char* const makefileName = "Makefile";
-static const char* const usage = "USAGE: StubsGenerator [path to makefile] [path to project directory] --use_container\n"
+static const char* const usage = "USAGE: StubsGenerator [path to makefile]\n"
                            "path to makefile: The path to the makefile.\n"
-                           "path to project directory: The path to the project (needed for searching includes).\n"
+                           "Optional parameters:\n"
                            "--use_container: Add this flag if container should be used.\n"
                            "--from_cmake: Use this flag if the Makefile have been generated from CMakeLists.txt\n"
-                           "--logs={CONSOLE, FILE, BOTH (default)}]";
+                           "--logs={CONSOLE, FILE, BOTH (default)}: Set the logging output.\n";
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -85,9 +79,10 @@ int main(int argc, char* argv[]) {
             ContainerCompilationExecutor executor(argv[1], containerParams.m_containerName, containerParams.m_containerImage);
             bool isFromCmake = configMap[Configuration::FROM_CMAKE] == true ? true : false;
 
+            CompilationOutputParser parser(executor.compile(), argv[1], isFromCmake);
+
             std::cout << "Please wait, the stub generation is in progress..." << std::endl;
 
-            CompilationOutputParser parser(executor.compile(), argv[1], isFromCmake);
             const std::vector<UndefinedReferenceError> errors = parser.parse();
             StubGenerator stubGenerator(errors);
             stubGenerator.generateStubs();
@@ -99,9 +94,10 @@ int main(int argc, char* argv[]) {
             CompilationExecutor executor(argv[1]);
             bool isFromCmake = configMap[Configuration::FROM_CMAKE] == true ? true : false;
 
+            CompilationOutputParser parser(executor.compile(), argv[1], isFromCmake);
+
             std::cout << "Please wait, the stub generation is in progress..." << std::endl;
 
-            CompilationOutputParser parser(executor.compile(), argv[1], isFromCmake);
             const std::vector<UndefinedReferenceError> errors = parser.parse();
             StubGenerator stubGenerator(errors);
             stubGenerator.generateStubs();

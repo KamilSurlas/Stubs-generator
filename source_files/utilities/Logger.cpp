@@ -9,7 +9,7 @@ using namespace std;
 namespace Utilities {
 string Logger::prepareDirectory() const
 {
-#ifdef __WIN32__
+#ifdef _WIN32
     const char* const logsFileLocationDirecotry = "logs\\";
 #else
     const char* const logsFileLocationDirecotry = "logs/";
